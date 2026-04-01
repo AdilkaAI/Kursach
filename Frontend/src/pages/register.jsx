@@ -1,34 +1,50 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
-    password: '',
-    role: 'Student'
+    password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
-    setTimeout(() => {
-      alert('Регистрация прошла успешно! Теперь войдите в систему.');
+    try {
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+
+      await axios.post('http://localhost:5000/api/auth/register', {
+        name: fullName,
+        email: formData.email,
+        password: formData.password,
+        role: 'Student'
+      });
+
+      alert('Аккаунт успешно создан! Теперь войдите в систему.');
       navigate('/login');
-    }, 700);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Ошибка при регистрации');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+      background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -40,102 +56,44 @@ export default function Register() {
         maxWidth: '440px',
         borderRadius: '24px',
         padding: '50px 40px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
+        boxShadow: '0 25px 70px rgba(0,0,0,0.2)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{
-            width: '80px',
-            height: '80px',
-            background: '#2563eb',
-            borderRadius: '20px',
-            margin: '0 auto 20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '42px',
-            fontWeight: 'bold'
-          }}>Q</div>
-          <h1 style={{ fontSize: '32px', fontWeight: '700', margin: '0 0 8px' }}>Создать аккаунт</h1>
-          <p style={{ color: '#64748b', fontSize: '18px' }}>Присоединяйся к QazConsult</p>
+          <div style={{ width: '80px', height: '80px', background: '#2563eb', borderRadius: '20px', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '48px', fontWeight: 'bold' }}>Q</div>
+          <h1 style={{ fontSize: '32px', fontWeight: '700' }}>Создать аккаунт</h1>
+          <p style={{ color: '#64748b' }}>Присоединяйся к сообществу QazConsult</p>
         </div>
+
+        {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '20px' }}>{error}</p>}
 
         <form onSubmit={handleRegister}>
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Имя и фамилия</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Ваше имя и фамилия"
-              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '17px' }}
-              required
-            />
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Имя</label>
+            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Имя" required style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
           </div>
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="your@email.com"
-              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '17px' }}
-              required
-            />
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Фамилия</label>
+            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Фамилия" required style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
           </div>
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Пароль</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Минимум 6 символов"
-              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '17px' }}
-              required
-            />
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Email</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Почта" required style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
           </div>
 
-          <div style={{ marginBottom: '30px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Роль</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '17px' }}
-            >
-              <option value="Student">Студент</option>
-              <option value="Expert">Эксперт</option>
-            </select>
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Пароль</label>
+            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '16px',
-              background: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: '9999px',
-              fontSize: '18px',
-              fontWeight: '600'
-            }}
-          >
-            {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+          <button type="submit" disabled={loading} style={{ width: '100%', padding: '16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '9999px', fontSize: '18px', fontWeight: '600' }}>
+            {loading ? 'Создание...' : 'Создать аккаунт'}
           </button>
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '24px', color: '#64748b' }}>
-          Уже есть аккаунт?{' '}
-          <Link to="/login" style={{ color: '#2563eb', fontWeight: '600', textDecoration: 'none' }}>
-            Войти
-          </Link>
+          Уже есть аккаунт? <Link to="/login" style={{ color: '#2563eb', fontWeight: '600' }}>Войти</Link>
         </p>
       </div>
     </div>

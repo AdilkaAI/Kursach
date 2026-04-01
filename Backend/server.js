@@ -10,6 +10,7 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/api/ai', require('./routes/ai'));
 
 // Подключение к MongoDB
 mongoose.connect(process.env.MONGO_URI)

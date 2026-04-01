@@ -1,42 +1,48 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
-    // Имитация запроса к backend
-    setTimeout(() => {
-      const fakeUser = {
-        id: "1",
-        name: "Ерасыл Алпысбаев",
-        email: email,
-        role: email.includes("expert") ? "Expert" : "Student"
-      };
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/login', {
+        email,
+        password
+      });
 
-      localStorage.setItem('token', 'fake-jwt-token');
-      localStorage.setItem('user', JSON.stringify(fakeUser));
+      // Сохраняем токен и данные пользователя
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
 
-      alert(`Добро пожаловать, ${fakeUser.name}!`);
+      alert(`Добро пожаловать, ${res.data.user.name}!`);
 
-      if (fakeUser.role === "Expert") {
+      // Редирект в зависимости от роли
+      if (res.data.user.role === 'Expert') {
         navigate('/expert');
       } else {
         navigate('/student');
       }
-    }, 800);
+    } catch (err) {
+      setError(err.response?.data?.message || "Неверный email или пароль");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+      background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -48,7 +54,7 @@ export default function Login() {
         maxWidth: '420px',
         borderRadius: '24px',
         padding: '50px 40px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
+        boxShadow: '0 25px 70px rgba(0,0,0,0.2)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div style={{
@@ -61,46 +67,39 @@ export default function Login() {
             alignItems: 'center',
             justifyContent: 'center',
             color: 'white',
-            fontSize: '42px',
+            fontSize: '48px',
             fontWeight: 'bold'
           }}>Q</div>
-          <h1 style={{ fontSize: '32px', fontWeight: '700', margin: '0 0 8px' }}>Добро пожаловать</h1>
-          <p style={{ color: '#64748b', fontSize: '18px' }}>Войдите в свой аккаунт QazConsult</p>
+          <h1 style={{ fontSize: '32px', fontWeight: '700' }}>Вход в аккаунт</h1>
         </div>
+
+        {error && (
+          <p style={{ color: 'red', textAlign: 'center', marginBottom: '20px', fontWeight: '600' }}>
+            {error}
+          </p>
+        )}
 
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Email</label>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="student@example.com"
-              style={{
-                width: '100%',
-                padding: '16px 20px',
-                border: '1px solid #cbd5e1',
-                borderRadius: '12px',
-                fontSize: '17px'
-              }}
+              placeholder="your@email.com"
+              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '14px', fontSize: '17px' }}
               required
             />
           </div>
 
           <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Пароль</label>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Пароль</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              style={{
-                width: '100%',
-                padding: '16px 20px',
-                border: '1px solid #cbd5e1',
-                borderRadius: '12px',
-                fontSize: '17px'
-              }}
+              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '14px', fontSize: '17px' }}
               required
             />
           </div>
@@ -116,19 +115,16 @@ export default function Login() {
               border: 'none',
               borderRadius: '9999px',
               fontSize: '18px',
-              fontWeight: '600',
-              marginBottom: '20px'
+              fontWeight: '600'
             }}
           >
-            {loading ? 'Вход...' : 'Войти'}
+            {loading ? 'Проверка...' : 'Войти'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', color: '#64748b' }}>
+        <p style={{ textAlign: 'center', marginTop: '24px', color: '#64748b' }}>
           Нет аккаунта?{' '}
-          <Link to="/register" style={{ color: '#2563eb', fontWeight: '600', textDecoration: 'none' }}>
-            Зарегистрироваться
-          </Link>
+          <Link to="/register" style={{ color: '#2563eb', fontWeight: '600' }}>Зарегистрироваться</Link>
         </p>
       </div>
     </div>

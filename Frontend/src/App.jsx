@@ -1,24 +1,66 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
+import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Home from './pages/Home';
-import ExpertDashboard from './pages/ExpertDashboard';
-import StudentDashboard from './pages/StudentDashboard';
-import Chat from './pages/Chat';  
+import Questions from './pages/Questions';
+import Experts from './pages/Experts';
+import Chat from './pages/Chat';
+import Chats from './pages/Chats';
+import Settings from './pages/Settings';
 
 function App() {
+  const token = localStorage.getItem('token');
+
+  // Строгая защита: без токена можно только на главную, логин и регистрацию
+  const ProtectedRoute = ({ children }) => {
+    if (!token) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  };
+
   return (
     <Router>
-      <div>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
         <Header />
+        
         <Routes>
+          {/* Публичные страницы (доступны без логина) */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/expert" element={<ExpertDashboard />} />
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/chat" element={<Chat />} />
+
+          {/* Защищённые страницы (требуют авторизации) */}
+          <Route path="/questions" element={
+            <ProtectedRoute>
+              <Questions />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/experts" element={
+            <ProtectedRoute>
+              <Experts />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/chat" element={
+            <ProtectedRoute>
+              <Chat />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/chats" element={
+            <ProtectedRoute>
+              <Chats />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
         </Routes>
       </div>
     </Router>

@@ -1,57 +1,35 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 const router = express.Router();
-
-// Временное хранилище пользователей (пока без БД)
-let users = [];
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey12345';
 
 // Регистрация
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role = 'Student' } = req.body;
+    const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Все поля обязательны' });
-    }
-
-    // Проверка, существует ли пользователь
-    const existingUser = users.find(u => u.email === email);
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Пользователь с таким email уже существует' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const user = new User({ name, email, password, role: role || 'Student' });
+    await user.save();
 
-    const newUser = {
-      id: Date.now().toString(),
-      name,
-      email,
-      password: hashedPassword,
-      role
-    };
-
-    users.push(newUser);
-
-    res.status(201).json({
-      message: 'Регистрация успешна!',
-      user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role }
-    });
-  } catch (error) {
+    res.status(201).json({ message: 'Регистрация прошла успешно' });
+  } catch (err) {
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 });
 
-// Логин
+// Логин (самое важное — теперь проверяет БД!)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = users.find(u => u.email === email);
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Неверный email или пароль' });
     }
@@ -62,23 +40,23 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role },
-      JWT_SECRET,
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET || 'supersecretkey123',
       { expiresIn: '7d' }
     );
 
-    
-
     res.json({
-      message: 'Успешный вход',
       token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role }
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({ message: 'Ошибка сервера' });
   }
-  
-  
 });
 
 module.exports = router;
