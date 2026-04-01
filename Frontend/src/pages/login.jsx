@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -13,62 +11,96 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
-        email,
-        password
-      });
+    // Имитация запроса к backend
+    setTimeout(() => {
+      const fakeUser = {
+        id: "1",
+        name: "Ерасыл Алпысбаев",
+        email: email,
+        role: email.includes("expert") ? "Expert" : "Student"
+      };
 
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
+      localStorage.setItem('token', 'fake-jwt-token');
+      localStorage.setItem('user', JSON.stringify(fakeUser));
 
-      toast.success('Успешный вход!');
-      
-      // Переход в зависимости от роли
-      // Переход в зависимости от роли
-if (res.data.user.role === 'Expert') {
-  navigate('/expert');
-} else {
-  navigate('/student');
-}
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Ошибка входа');
-    } finally {
-      setLoading(false);
-    }
+      alert(`Добро пожаловать, ${fakeUser.name}!`);
+
+      if (fakeUser.role === "Expert") {
+        navigate('/expert');
+      } else {
+        navigate('/student');
+      }
+    }, 800);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Toaster position="top-center" />
-      
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-md p-10">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-gray-900">Добро пожаловать</h2>
-          <p className="text-gray-600 mt-2">Войдите в свой аккаунт</p>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px'
+    }}>
+      <div style={{
+        background: 'white',
+        width: '100%',
+        maxWidth: '420px',
+        borderRadius: '24px',
+        padding: '50px 40px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            background: '#2563eb',
+            borderRadius: '20px',
+            margin: '0 auto 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '42px',
+            fontWeight: 'bold'
+          }}>Q</div>
+          <h1 style={{ fontSize: '32px', fontWeight: '700', margin: '0 0 8px' }}>Добро пожаловать</h1>
+          <p style={{ color: '#64748b', fontSize: '18px' }}>Войдите в свой аккаунт QazConsult</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <form onSubmit={handleLogin}>
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500"
-              placeholder="student@test.com"
+              placeholder="student@example.com"
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '12px',
+                fontSize: '17px'
+              }}
               required
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Пароль</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500"
               placeholder="••••••••"
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '12px',
+                fontSize: '17px'
+              }}
               required
             />
           </div>
@@ -76,15 +108,25 @@ if (res.data.user.role === 'Expert') {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-blue-600 text-white font-semibold rounded-2xl hover:bg-blue-700 transition disabled:opacity-70"
+            style={{
+              width: '100%',
+              padding: '16px',
+              background: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '9999px',
+              fontSize: '18px',
+              fontWeight: '600',
+              marginBottom: '20px'
+            }}
           >
             {loading ? 'Вход...' : 'Войти'}
           </button>
         </form>
 
-        <p className="text-center mt-8 text-gray-600">
+        <p style={{ textAlign: 'center', color: '#64748b' }}>
           Нет аккаунта?{' '}
-          <Link to="/register" className="text-blue-600 font-medium hover:underline">
+          <Link to="/register" style={{ color: '#2563eb', fontWeight: '600', textDecoration: 'none' }}>
             Зарегистрироваться
           </Link>
         </p>

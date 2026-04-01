@@ -1,125 +1,143 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function ExpertDashboard() {
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState([
+    { 
+      id: 1, 
+      title: "Как правильно использовать замыкания в JavaScript?", 
+      description: "Нужен понятный пример для курсовой работы", 
+      status: "Открыт",
+      student: "Айдос Е."
+    },
+    { 
+      id: 2, 
+      title: "Как настроить PostgreSQL для учебного проекта?", 
+      description: "Помогите с подключением и базовой структурой", 
+      status: "Открыт",
+      student: "Мадияр С."
+    }
+  ]);
+
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [answer, setAnswer] = useState('');
+  const navigate = useNavigate();
+
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
     if (user.role !== 'Expert') {
-      window.location.href = '/login';
+      navigate('/login');
     }
-    fetchQuestions();
-  }, []);
+  }, [user, navigate]);
 
-  const fetchQuestions = async () => {
-    try {
-      const res = await axios.get('http://localhost:5000/api/questions');
-      // Показываем только открытые вопросы
-      setQuestions(res.data.filter(q => q.status === 'open'));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const takeQuestion = (question) => {
-    setSelectedQuestion(question);
-    toast.success(`Вы взяли вопрос: ${question.title}`);
+  const takeQuestion = (q) => {
+    setSelectedQuestion(q);
   };
 
   const sendAnswer = () => {
     if (!answer.trim() || !selectedQuestion) return;
 
-    // Имитация ответа
-    const updatedQuestions = questions.map(q => 
-      q.id === selectedQuestion.id 
-        ? { ...q, status: 'closed', answers: [...(q.answers || []), { text: answer, expert: user.name }] }
-        : q
-    );
+    alert(`Ответ отправлен экспертом ${user.name}!\nВопрос "${selectedQuestion.title}" закрыт.`);
 
-    setQuestions(updatedQuestions);
+    setQuestions(questions.filter(q => q.id !== selectedQuestion.id));
     setSelectedQuestion(null);
     setAnswer('');
-    toast.success('Ответ отправлен! Вопрос закрыт.');
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
-      <Toaster />
-      <div className="flex justify-between items-center mb-10">
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div>
-          <h1 className="text-3xl font-bold">Панель эксперта</h1>
-          <p className="text-gray-600">Здравствуйте, {user.name}</p>
+          <h1 style={{ fontSize: '36px', fontWeight: '700' }}>Панель эксперта</h1>
+          <p style={{ color: '#64748b', fontSize: '18px' }}>Здравствуйте, {user.name}</p>
         </div>
         <button 
-          onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
-          className="px-5 py-2 border border-red-300 text-red-600 rounded-xl hover:bg-red-50"
+          onClick={() => { localStorage.clear(); navigate('/login'); }}
+          style={{ padding: '12px 28px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '12px' }}
         >
           Выйти
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Список открытых вопросов */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+        {/* Список вопросов */}
         <div>
-          <h2 className="text-2xl font-semibold mb-6">Открытые вопросы</h2>
-          <div className="space-y-6">
-            {questions.length === 0 ? (
-              <p className="text-gray-500">Пока нет открытых вопросов</p>
-            ) : (
-              questions.map(q => (
-                <div key={q.id} className="bg-white p-6 rounded-3xl shadow hover:shadow-md transition">
-                  <h3 className="font-semibold text-lg mb-2">{q.title}</h3>
-                  <p className="text-gray-600 mb-4 line-clamp-3">{q.description}</p>
-                  <button 
-                    onClick={() => takeQuestion(q)}
-                    className="px-6 py-2 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition"
-                  >
-                    Взять вопрос
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
+          <h2 style={{ fontSize: '26px', marginBottom: '20px' }}>Открытые вопросы</h2>
+          
+          {questions.map(q => (
+            <div key={q.id} style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '16px',
+              marginBottom: '20px',
+              boxShadow: '0 6px 20px rgba(0,0,0,0.07)'
+            }}>
+              <h3 style={{ fontSize: '20px', marginBottom: '10px' }}>{q.title}</h3>
+              <p style={{ color: '#475569', marginBottom: '16px' }}>{q.description}</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>От студента: <strong>{q.student}</strong></span>
+                <button 
+                  onClick={() => takeQuestion(q)}
+                  style={{
+                    padding: '10px 24px',
+                    background: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '9999px',
+                    fontWeight: '600'
+                  }}
+                >
+                  Взять вопрос
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Окно ответа */}
         <div>
-          <h2 className="text-2xl font-semibold mb-6">Ответ на вопрос</h2>
+          <h2 style={{ fontSize: '26px', marginBottom: '20px' }}>Ответ на вопрос</h2>
+          
           {selectedQuestion ? (
-            <div className="bg-white p-8 rounded-3xl shadow">
-              <h3 className="font-semibold text-xl mb-4">{selectedQuestion.title}</h3>
-              <p className="text-gray-600 mb-8">{selectedQuestion.description}</p>
+            <div style={{ background: 'white', padding: '32px', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ fontSize: '22px', marginBottom: '16px' }}>{selectedQuestion.title}</h3>
+              <p style={{ color: '#475569', marginBottom: '30px' }}>{selectedQuestion.description}</p>
 
               <textarea
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Напишите ваш ответ здесь..."
-                rows={10}
-                className="w-full p-5 border border-gray-300 rounded-3xl focus:outline-none focus:border-blue-500"
+                placeholder="Напишите подробный ответ..."
+                rows="10"
+                style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '17px' }}
               />
 
-              <div className="flex gap-4 mt-6">
+              <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
                 <button 
                   onClick={sendAnswer}
-                  className="flex-1 py-4 bg-blue-600 text-white font-semibold rounded-2xl hover:bg-blue-700"
+                  style={{ flex: 1, padding: '16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '9999px', fontSize: '17px', fontWeight: '600' }}
                 >
                   Отправить ответ и закрыть вопрос
                 </button>
                 <button 
                   onClick={() => setSelectedQuestion(null)}
-                  className="flex-1 py-4 border border-gray-300 rounded-2xl hover:bg-gray-50"
+                  style={{ flex: 1, padding: '16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '9999px', fontSize: '17px' }}
                 >
                   Отменить
                 </button>
               </div>
             </div>
           ) : (
-            <div className="bg-white p-12 rounded-3xl shadow text-center">
-              <p className="text-gray-500">Выберите вопрос слева, чтобы ответить</p>
+            <div style={{ 
+              background: 'white', 
+              padding: '80px 40px', 
+              textAlign: 'center', 
+              borderRadius: '20px',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.08)'
+            }}>
+              <p style={{ color: '#64748b', fontSize: '18px' }}>
+                Выберите вопрос слева, чтобы начать отвечать
+              </p>
             </div>
           )}
         </div>

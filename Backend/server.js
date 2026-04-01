@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -10,36 +11,52 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey12345';
+// Подключение к MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log(' MongoDB подключён успешно'))
+  .catch(err => console.error('X Ошибка MongoDB:', err.message));
 
-// Временное хранилище
-let users = [];
-let questions = [];
+// ====================== МОДЕЛИ ======================
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['Student', 'Expert', 'Admin'], default: 'Student' }
+});
 
-// ====================== AUTH ======================
+const questionSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  studentId: String,
+  expertId: String,
+  status: { type: String, default: 'open' },
+  answers: [{
+    text: String,
+    expertName: String,
+    date: { type: Date, default: Date.now }
+  }],
+  createdAt: { type: Date, default: Date.now }
+});
+
+const User = mongoose.model('User', userSchema);
+const Question = mongoose.model('Question', questionSchema);
+
+// ====================== АУТЕНТИФИКАЦИЯ ======================
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { name, email, password, role = 'Student' } = req.body;
+    const { name, email, password, role } = req.body;
 
-    if (users.find(u => u.email === email)) {
+    if (await User.findOne({ email })) {
       return res.status(400).json({ message: 'Пользователь уже существует' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = {
-      id: Date.now().toString(),
-      name,
-      email,
-      password: hashedPassword,
-      role
-    };
-
-    users.push(user);
+    const user = new User({ name, email, password: hashedPassword, role });
+    await user.save();
 
     res.status(201).json({ 
       message: 'Регистрация успешна', 
-      user: { id: user.id, name: user.name, email: user.email, role: user.role } 
+      user: { id: user._id, name, email, role } 
     });
   } catch (err) {
     res.status(500).json({ message: 'Ошибка сервера' });
@@ -49,52 +66,49 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = users.find(u => u.email === email);
-
+    const user = await User.findOne({ email });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: 'Неверный email или пароль' });
     }
 
-    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
-    res.json({
-      message: 'Успешный вход',
-      token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role }
+    res.json({ 
+      message: 'Успешный вход', 
+      token, 
+      user: { id: user._id, name: user.name, email: user.email, role: user.role } 
     });
   } catch (err) {
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 });
 
-// ====================== QUESTIONS ======================
-app.post('/api/questions', (req, res) => {
-  const { title, description, category } = req.body;
-  const question = {
-    id: Date.now().toString(),
-    title,
-    description,
-    category,
-    status: 'open',
-    studentId: req.body.studentId,
-    expertId: null,
-    answers: []
-  };
-  questions.push(question);
-  res.status(201).json(question);
+// ====================== ВОПРОСЫ ======================
+app.post('/api/questions', async (req, res) => {
+  try {
+    const question = new Question(req.body);
+    await question.save();
+    res.status(201).json(question);
+  } catch (err) {
+    res.status(500).json({ message: 'Ошибка при создании вопроса' });
+  }
 });
 
-app.get('/api/questions', (req, res) => {
+app.get('/api/questions', async (req, res) => {
+  const questions = await Question.find().sort({ createdAt: -1 });
   res.json(questions);
 });
 
-app.get('/api/questions/my', (req, res) => {
-  // Здесь позже добавим фильтр по пользователю
+app.get('/api/questions/open', async (req, res) => {
+  const questions = await Question.find({ status: 'open' }).sort({ createdAt: -1 });
   res.json(questions);
 });
 
-// Запуск сервера
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(` QazConsult Backend запущен на http://localhost:${PORT}`);
+  console.log(` Сервер запущен на http://localhost:${PORT}`);
 });
