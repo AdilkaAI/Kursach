@@ -3,16 +3,16 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import Login from './pages/login';
 import Register from './pages/register';
-import Questions from './pages/questions';
+import Questions from './pages/Questions';
 import Experts from './pages/Experts';
 import Chat from './pages/Chat';
 import Chats from './pages/Chats';
-import Settings from './pages/Settings';
+import Settings from './pages/settings';   
 
 function App() {
   const token = localStorage.getItem('token');
 
-  // Строгая защита: без токена можно только на главную, логин и регистрацию
+  // Защищённая маршрутизация
   const ProtectedRoute = ({ children }) => {
     if (!token) {
       return <Navigate to="/login" replace />;
@@ -26,12 +26,12 @@ function App() {
         <Header />
         
         <Routes>
-          {/* Публичные страницы (доступны без логина) */}
+          {/* Публичные страницы */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Защищённые страницы (требуют авторизации) */}
+          {/* Защищённые страницы */}
           <Route path="/questions" element={
             <ProtectedRoute>
               <Questions />
