@@ -13,8 +13,15 @@ export default function Register() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Улучшенная валидация email
+  const isValidEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return regex.test(email);
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(''); // очищаем ошибку при вводе
   };
 
   const handleRegister = async (e) => {
@@ -23,19 +30,40 @@ export default function Register() {
     setError('');
 
     try {
-      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      // Валидация на клиенте
+      if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.password.trim()) {
+        throw new Error("Все поля обязательны для заполнения");
+      }
 
+      if (formData.email.length < 8) {
+        throw new Error("Email слишком короткий");
+      }
+
+      if (!isValidEmail(formData.email)) {
+        throw new Error("Введите корректный email адрес (например: example@gmail.com)");
+      }
+
+      if (formData.password.length < 6) {
+        throw new Error("Пароль должен содержать минимум 6 символов");
+      }
+
+      const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+
+      // Запрос к серверу
       await axios.post('http://localhost:5000/api/auth/register', {
         name: fullName,
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
         role: 'Student'
       });
 
-      alert('Аккаунт успешно создан! Теперь войдите в систему.');
+      alert('Аккаунт успешно создан! Теперь вы можете войти.');
       navigate('/login');
+
     } catch (err) {
-      setError(err.response?.data?.message || 'Ошибка при регистрации');
+      // Обработка ошибок
+      const errorMessage = err.response?.data?.message || err.message || 'Ошибка при регистрации. Попробуйте позже.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -59,41 +87,99 @@ export default function Register() {
         boxShadow: '0 25px 70px rgba(0,0,0,0.2)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{ width: '80px', height: '80px', background: '#2563eb', borderRadius: '20px', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '48px', fontWeight: 'bold' }}>Q</div>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            background: '#2563eb',
+            borderRadius: '20px',
+            margin: '0 auto 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '48px',
+            fontWeight: 'bold'
+          }}>Q</div>
           <h1 style={{ fontSize: '32px', fontWeight: '700' }}>Создать аккаунт</h1>
           <p style={{ color: '#64748b' }}>Присоединяйся к сообществу QazConsult</p>
         </div>
 
-        {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '20px' }}>{error}</p>}
+        {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '20px', fontWeight: '600' }}>{error}</p>}
 
         <form onSubmit={handleRegister}>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Имя</label>
-            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Имя" required style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
+            <input
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              placeholder="Введите ваше имя"
+              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '14px', fontSize: '17px' }}
+              required
+            />
           </div>
 
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Фамилия</label>
-            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Фамилия" required style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
+            <input
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Введите вашу фамилию"
+              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '14px', fontSize: '17px' }}
+              required
+            />
           </div>
 
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Почта" required style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Введите ваш email"
+              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '14px', fontSize: '17px' }}
+              required
+            />
           </div>
 
           <div style={{ marginBottom: '32px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Пароль</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required style={{ width: '100%', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '14px', fontSize: '17px' }}
+              required
+            />
           </div>
 
-          <button type="submit" disabled={loading} style={{ width: '100%', padding: '16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '9999px', fontSize: '18px', fontWeight: '600' }}>
-            {loading ? 'Создание...' : 'Создать аккаунт'}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '16px',
+              background: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '9999px',
+              fontSize: '18px',
+              fontWeight: '600'
+            }}
+          >
+            {loading ? 'Создание аккаунта...' : 'Создать аккаунт'}
           </button>
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '24px', color: '#64748b' }}>
-          Уже есть аккаунт? <Link to="/login" style={{ color: '#2563eb', fontWeight: '600' }}>Войти</Link>
+          Уже есть аккаунт?{' '}
+          <Link to="/login" style={{ color: '#2563eb', fontWeight: '600' }}>Войти</Link>
         </p>
       </div>
     </div>

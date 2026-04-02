@@ -9,18 +9,38 @@ export default function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Валидация email
+  const isValidEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return regex.test(email);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      // Клиентская валидация
+      if (!email.trim() || !password.trim()) {
+        throw new Error("Пожалуйста, заполните все поля");
+      }
+
+      if (!isValidEmail(email)) {
+        throw new Error("Введите корректный email адрес (например: example@gmail.com)");
+      }
+
+      if (password.length < 4) {
+        throw new Error("Пароль слишком короткий");
+      }
+
+      // Запрос к серверу
       const res = await axios.post('http://localhost:5000/api/auth/login', {
-        email,
-        password
+        email: email.trim().toLowerCase(),
+        password: password
       });
 
-      // Сохраняем токен и данные пользователя
+      // Успешный вход
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
 
@@ -32,8 +52,18 @@ export default function Login() {
       } else {
         navigate('/student');
       }
+
     } catch (err) {
-      setError(err.response?.data?.message || "Неверный email или пароль");
+      // Обработка всех возможных ошибок
+      let errorMsg = "Произошла ошибка при входе";
+
+      if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -74,7 +104,15 @@ export default function Login() {
         </div>
 
         {error && (
-          <p style={{ color: 'red', textAlign: 'center', marginBottom: '20px', fontWeight: '600' }}>
+          <p style={{ 
+            color: 'red', 
+            textAlign: 'center', 
+            marginBottom: '20px', 
+            fontWeight: '600',
+            background: '#fee2e2',
+            padding: '12px',
+            borderRadius: '8px'
+          }}>
             {error}
           </p>
         )}
@@ -87,7 +125,13 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
-              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '14px', fontSize: '17px' }}
+              style={{ 
+                width: '100%', 
+                padding: '16px 20px', 
+                border: '1px solid #cbd5e1', 
+                borderRadius: '14px', 
+                fontSize: '17px' 
+              }}
               required
             />
           </div>
@@ -99,7 +143,13 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              style={{ width: '100%', padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: '14px', fontSize: '17px' }}
+              style={{ 
+                width: '100%', 
+                padding: '16px 20px', 
+                border: '1px solid #cbd5e1', 
+                borderRadius: '14px', 
+                fontSize: '17px' 
+              }}
               required
             />
           </div>
@@ -118,7 +168,7 @@ export default function Login() {
               fontWeight: '600'
             }}
           >
-            {loading ? 'Проверка...' : 'Войти'}
+            {loading ? 'Проверка данных...' : 'Войти'}
           </button>
         </form>
 

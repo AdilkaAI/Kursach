@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Questions from './pages/Questions';
+import Login from './pages/login';
+import Register from './pages/register';
+import Questions from './pages/questions';
 import Experts from './pages/Experts';
 import Chat from './pages/Chat';
 import Chats from './pages/Chats';
