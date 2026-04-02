@@ -12,6 +12,19 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/ai', require('./routes/ai'));
 
+app.get('/', (req, res) => {
+  res.json({
+    message: " QazConsult Backend успешно работает!",
+    status: "online",
+    version: "1.0",
+    endpoints: {
+      register: "POST /api/auth/register",
+      login: "POST /api/auth/login",
+      ai_reply: "POST /api/ai/expert-reply"
+    }
+  });
+});
+
 // Подключение к MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log(' MongoDB подключён успешно'))

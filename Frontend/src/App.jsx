@@ -7,7 +7,7 @@ import Questions from './pages/Questions';
 import Experts from './pages/Experts';
 import Chat from './pages/Chat';
 import Chats from './pages/Chats';
-import Settings from './pages/settings';   
+import Settings from './pages/Settings';   
 
 function App() {
   const token = localStorage.getItem('token');
