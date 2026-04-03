@@ -5,7 +5,7 @@ export default function Home() {
 
   return (
     <div>
-      {/* Герой-секция — очень большая */}
+      {/* Салам */}
       <div style={{
         height: '100vh',
         background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
@@ -75,7 +75,7 @@ export default function Home() {
         <div style={{ position: 'absolute', top: '20%', right: '15%', fontSize: '140px', opacity: '0.1' }}>👨‍💻</div>
       </div>
 
-      {/* Блок преимуществ — большой и с карточками */}
+      {/* кардс */}
       <div style={{ padding: '100px 40px', background: '#f8fafc' }}>
         <h2 style={{ textAlign: 'center', fontSize: '42px', marginBottom: '80px' }}>
           Почему выбирают QazConsult?
@@ -114,7 +114,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Как это работает — большая секция */}
+      {/* хау ит ворк */}
       <div style={{ padding: '100px 40px', background: 'white' }}>
         <h2 style={{ textAlign: 'center', fontSize: '42px', marginBottom: '70px' }}>
           Как это работает?

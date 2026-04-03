@@ -19,7 +19,7 @@ export default function Experts() {
 
   const navigate = useNavigate();
 
-  // Обновляем список занятых экспертов каждые 1.5 секунды
+  // 
   const refreshBusyExperts = () => {
     const busy = [];
     for (let i = 0; i < localStorage.length; i++) {

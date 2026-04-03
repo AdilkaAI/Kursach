@@ -11,15 +11,15 @@ router.post('/expert-reply', async (req, res) => {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `Ты ${expertName} — опытный ${specialty} из Казахстана.
-Отвечай студенту дружелюбно, понятно и профессионально на русском языке.
-Будь полезным и объясняй по делу.
+Отвечай студенту дружелюбно, НЕ СЛИШКОМ ДЛИННО, понятно и профессионально на русском языке и казахском смешанном.
+Будь полезным и объясняй по делу, иногда с юмором.
 
 Вопрос студента: ${userMessage}`;
 
     const result = await model.generateContent(prompt);
     const reply = result.response.text();
 
-    // Небольшая задержка для естественности
+    // задержка
     await new Promise(resolve => setTimeout(resolve, 800));
 
     res.json({ reply });

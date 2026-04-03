@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Логин (самое важное — теперь проверяет БД!)
+// Логин 
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;

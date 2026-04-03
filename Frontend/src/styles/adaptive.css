@@ -1,5 +1,3 @@
-
-
 * {
   box-sizing: border-box;
 }
@@ -7,10 +5,9 @@
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   line-height: 1.6;
-  overflow-x: hidden;
   background: #f8fafc;
+  overflow-x: hidden;
 }
-
 
 .container {
   max-width: 1280px;
@@ -18,13 +15,15 @@ body {
   padding: 0 20px;
 }
 
-
 header {
   position: sticky;
   top: 0;
   z-index: 1100;
-  background: rgba(255, 255, 255, 0.97);
+  background: rgba(255, 255, 255, 0.98);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .header-content {
@@ -32,10 +31,11 @@ header {
   justify-content: space-between;
   align-items: center;
   min-height: 76px;
+  padding: 0 20px;
 }
 
 .logo {
-  font-size: 29px;
+  font-size: 28px;
   font-weight: 800;
   color: #2563eb;
   text-decoration: none;
@@ -43,7 +43,7 @@ header {
 
 .desktop-nav {
   display: flex;
-  gap: 34px;
+  gap: 32px;
   font-size: 17px;
   font-weight: 500;
 }
@@ -51,55 +51,47 @@ header {
 .desktop-nav a {
   color: #1f2937;
   text-decoration: none;
-  transition: all 0.3s;
 }
 
 .desktop-nav a:hover {
   color: #2563eb;
 }
 
-
-.hero {
-  padding: 120px 0 100px;
-  text-align: center;
+.mobile-menu-button {
+  display: none;
+  font-size: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #1f2937;
 }
 
-.hero h1 {
-  font-size: 52px;
-  line-height: 1.1;
-  margin-bottom: 24px;
+.chats-page h1,
+.experts-page h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 30px;
 }
-
-.hero p {
-  font-size: 20px;
-  max-width: 700px;
-  margin: 0 auto 40px;
-}
-
 
 .expert-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 28px;
-  padding: 40px 0;
 }
 
 .expert-card {
   background: white;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s ease;
   height: 100%;
 }
 
 .expert-card:hover {
-  transform: translateY(-15px);
+  transform: translateY(-12px);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
 }
-
 
 .chat-wrapper {
   display: flex;
@@ -114,7 +106,7 @@ header {
   width: 340px;
   background: white;
   border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.08);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -123,22 +115,20 @@ header {
   flex: 1;
   background: white;
   border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-
 .btn {
-  padding: 14px 32px;
+  padding: 15px 32px;
   border-radius: 9999px;
   font-size: 16.5px;
   font-weight: 600;
+  min-height: 54px;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: none;
-  min-height: 54px;
 }
 
 .btn-primary {
@@ -148,17 +138,16 @@ header {
 
 .btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
 }
 
+/* ===================== АДАПТИВНОСТЬ ===================== */
 
-
-/* Маленькие телефоны */
 @media (max-width: 480px) {
   .container { padding: 0 15px; }
-  
-  .hero h1 { font-size: 36px; }
-  .hero p { font-size: 17px; }
+  .header-content { min-height: 68px; padding: 0 15px; }
+  .logo { font-size: 24px; }
+  .chats-page h1, .experts-page h1 { font-size: 26px; }
 
   .expert-grid {
     grid-template-columns: 1fr;
@@ -174,40 +163,39 @@ header {
 
   .chat-sidebar {
     width: 100%;
-    height: 260px;
-  }
-
-  .header-content {
-    min-height: 68px;
+    height: 280px;
   }
 }
 
-
 @media (max-width: 768px) {
-  .desktop-nav { display: none !important; }
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .mobile-menu-button {
+    display: block !important;
+  }
 
   .mobile-menu {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    font-size: 18px;
     padding: 30px 20px;
-  }
-
-  .mobile-menu-button {
-    display: block !important;
-    font-size: 30px;
-  }
-
-  .expert-card {
-    max-width: 100%;
+    font-size: 18px;
+    background: white;
+    position: fixed;
+    top: 76px;
+    left: 0;
+    right: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    z-index: 999;
   }
 }
 
-/* Планшеты */
 @media (max-width: 992px) {
   .expert-grid {
     grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 22px;
   }
 
   .chat-wrapper {
@@ -215,218 +203,15 @@ header {
   }
 }
 
-/* Ноутбуки и большие экраны */
-@media (min-width: 1200px) {
-  .container { padding: 0 50px; }
-  
-  .expert-grid {
-    gap: 32px;
-  }
-}
-
-/* Улучшение для тач-устройств */
-@media (hover: none) and (pointer: coarse) {
-  .btn {
-    min-height: 58px;
-    font-size: 17px;
-  }
-
-  .expert-card:active {
-    transform: scale(0.96);
-  }
-}
-
-/* Предотвращение горизонтального скролла */
-html, body {
-  overflow-x: hidden;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: #f8fafc;
-  overflow-x: hidden;
-}
-
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-header {
-  position: sticky;
-  top: 0;
-  z-index: 1100;
-  background: rgba(255, 255, 255, 0.98);
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 72px;
-  padding: 0 16px;
-}
-
-.logo {
-  font-size: 26px;
-  font-weight: 800;
-  color: #2563eb;
-}
-
-.desktop-nav {
-  display: flex;
-  gap: 28px;
-  font-size: 16px;
-}
-
-.desktop-nav a {
-  color: #1f2937;
-  text-decoration: none;
-}
-
-.mobile-menu-button {
-  font-size: 28px;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-
-.chats-page h1 {
-  font-size: 32px;
-  margin-bottom: 24px;
-  font-weight: 700;
-}
-
-.chats-empty {
-  background: white;
-  border-radius: 24px;
-  padding: 60px 30px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-  max-width: 420px;
-  margin: 40px auto;
-}
-
-.chats-empty .bubble {
-  font-size: 52px;
-  margin-bottom: 20px;
-}
-
-.chats-empty h3 {
-  font-size: 22px;
-  margin-bottom: 8px;
-}
-
-.chats-empty p {
-  color: #64748b;
-  margin-bottom: 32px;
-}
-
-
-.btn {
-  padding: 14px 28px;
-  border-radius: 9999px;
-  font-size: 16px;
-  font-weight: 600;
-  min-height: 52px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-blue {
-  background: #2563eb;
-  color: white;
-}
-
-.btn-red {
-  background: #ef4444;
-  color: white;
-}
-
-
-
-/* Очень маленькие экраны (телефоны) */
-@media (max-width: 480px) {
-  .header-content {
-    min-height: 68px;
-  }
-
-  .logo {
-    font-size: 24px;
-  }
-
-  .chats-page h1 {
-    font-size: 26px;
-  }
-
-  .chats-empty {
-    padding: 50px 20px;
-    margin: 20px auto;
-  }
-
-  .chats-empty .bubble {
-    font-size: 42px;
-  }
-
-  .chats-empty h3 {
-    font-size: 20px;
-  }
-}
-
-/* Телефоны и маленькие планшеты */
-@media (max-width: 768px) {
-  .desktop-nav {
-    display: none;
-  }
-
-  .mobile-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    padding: 25px 20px;
-    font-size: 17.5px;
-  }
-
-  .chat-wrapper, .chats-container {
-    padding: 12px;
-    gap: 12px;
-  }
-
-  .expert-grid {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-}
-
-/* Планшеты */
-@media (max-width: 992px) {
-  .expert-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
-}
-
-/* Большие экраны */
 @media (min-width: 1200px) {
   .container {
     padding: 0 40px;
   }
 }
 
-/* Улучшение тач-интерфейса */
-button, .btn {
-  min-height: 56px;
-}
-
 @media (hover: none) and (pointer: coarse) {
-  .btn:active {
-    transform: scale(0.96);
+  .btn {
+    min-height: 58px;
+    font-size: 17px;
   }
 }

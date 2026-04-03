@@ -95,7 +95,7 @@ export default function Chat() {
   const endChat = () => {
     if (window.confirm(`Завершить чат с ${expert?.name}?`)) {
       if (chatKey) {
-        localStorage.removeItem(chatKey);   // Полностью удаляем чат
+        localStorage.removeItem(chatKey);   
       }
       alert("Чат успешно завершён. Эксперт теперь свободен.");
       navigate('/chats');

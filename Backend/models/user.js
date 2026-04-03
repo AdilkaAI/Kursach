@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['Student', 'Expert'], default: 'Student' }
 });
 
-// Хэшируем пароль перед сохранением
+// Хэширование
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);

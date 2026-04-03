@@ -5,37 +5,58 @@ export default function Settings() {
   const navigate = useNavigate();
   
   const [userData, setUserData] = useState({
-    name: '',
-    surname: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
-    role: ''
+    role: 'Student'
   });
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Загружаем данные из localStorage при открытии страницы
+  // Загружаем данные из localStorage
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
     
     setUserData({
-      name: savedUser.name || '',
-      surname: '', // фамилию пока нет в регистрации, можно добавить позже
+      firstName: savedUser.firstName || '',
+      lastName: savedUser.lastName || '',
       email: savedUser.email || '',
-      phone: savedUser.phone || '+7 (___) ___-__-__',
+      phone: savedUser.phone || '',
       role: savedUser.role || 'Student'
     });
   }, []);
 
+  const handleChange = (e) => {
+    setUserData({ ...userData, [e.target.name]: e.target.value });
+  };
+
   const handleSave = () => {
-    // Обновляем данные в localStorage
-    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-    const updatedUser = { ...currentUser, ...userData };
-    
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    
-    alert("Изменения успешно сохранены!");
-    setIsEditing(false);
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const updatedUser = { 
+        ...currentUser, 
+        firstName: userData.firstName.trim(),
+        lastName: userData.lastName.trim(),
+        phone: userData.phone.trim()
+      };
+
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      setMessage('✅ Изменения успешно сохранены!');
+      
+      setTimeout(() => {
+        navigate('/chats'); // или куда нужно после сохранения
+      }, 1200);
+    } catch (error) {
+      setMessage('❌ Ошибка при сохранении данных');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -105,9 +126,11 @@ export default function Settings() {
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Имя</label>
               <input
                 type="text"
-                value={userData.name}
-                onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                name="firstName"
+                value={userData.firstName}
+                onChange={handleChange}
                 style={{ width: '100%', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '17px' }}
+                placeholder="Введите имя"
               />
             </div>
 
@@ -115,9 +138,11 @@ export default function Settings() {
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Фамилия</label>
               <input
                 type="text"
-                value={userData.surname}
-                onChange={(e) => setUserData({ ...userData, surname: e.target.value })}
+                name="lastName"
+                value={userData.lastName}
+                onChange={handleChange}
                 style={{ width: '100%', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '17px' }}
+                placeholder="Введите фамилию"
               />
             </div>
 
@@ -135,8 +160,10 @@ export default function Settings() {
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Телефон</label>
               <input
                 type="tel"
+                name="phone"
                 value={userData.phone}
-                onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+                onChange={handleChange}
+                placeholder="+7 (___) ___-__-__"
                 style={{ width: '100%', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '17px' }}
               />
             </div>
@@ -145,7 +172,7 @@ export default function Settings() {
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151' }}>Роль</label>
               <input
                 type="text"
-                value={userData.role === 'Student' ? 'Студент' : 'Эксперт'}
+                value={userData.role === 'Student' ? 'Студент' : userData.role === 'Expert' ? 'Эксперт' : 'Пользователь'}
                 disabled
                 style={{ width: '100%', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '17px', backgroundColor: '#f8fafc' }}
               />
@@ -156,6 +183,7 @@ export default function Settings() {
           <div style={{ marginTop: '50px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <button 
               onClick={handleSave}
+              disabled={loading}
               style={{
                 padding: '18px',
                 background: '#2563eb',
@@ -166,7 +194,7 @@ export default function Settings() {
                 fontWeight: '600'
               }}
             >
-              Сохранить изменения
+              {loading ? 'Сохранение...' : 'Сохранить изменения'}
             </button>
 
             <button 
@@ -184,6 +212,17 @@ export default function Settings() {
               Удалить аккаунт
             </button>
           </div>
+
+          {message && (
+            <p style={{ 
+              textAlign: 'center', 
+              marginTop: '20px',
+              color: message.includes('✅') ? 'green' : 'red',
+              fontWeight: '500'
+            }}>
+              {message}
+            </p>
+          )}
         </div>
       </div>
     </div>

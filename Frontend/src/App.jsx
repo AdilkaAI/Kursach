@@ -12,7 +12,7 @@ import Settings from './pages/Settings';
 function App() {
   const token = localStorage.getItem('token');
 
-  // Защищённая маршрутизация
+  // zащищённая маршрутизация
   const ProtectedRoute = ({ children }) => {
     if (!token) {
       return <Navigate to="/login" replace />;
@@ -26,12 +26,12 @@ function App() {
         <Header />
         
         <Routes>
-          {/* Публичные страницы */}
+          {/* публичные страницы */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Защищённые страницы */}
+          {/* защищённые страницы */}
           <Route path="/questions" element={
             <ProtectedRoute>
               <Questions />

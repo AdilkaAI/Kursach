@@ -30,7 +30,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log(' MongoDB подключён успешно'))
   .catch(err => console.error('X Ошибка MongoDB:', err.message));
 
-// ====================== МОДЕЛИ ======================
+// Модели
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true, required: true },
@@ -55,7 +55,7 @@ const questionSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 const Question = mongoose.model('Question', questionSchema);
 
-// ====================== АУТЕНТИФИКАЦИЯ ======================
+// аутентификация
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -101,7 +101,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// ====================== ВОПРОСЫ ======================
+// вопросы
 app.post('/api/questions', async (req, res) => {
   try {
     const question = new Question(req.body);

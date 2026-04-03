@@ -13,7 +13,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Улучшенная валидация email
+  //  валидация email
   const isValidEmail = (email) => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(email);
@@ -21,7 +21,7 @@ export default function Register() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(''); // очищаем ошибку при вводе
+    setError(''); 
   };
 
   const handleRegister = async (e) => {
@@ -30,7 +30,7 @@ export default function Register() {
     setError('');
 
     try {
-      // Валидация на клиенте
+      // валидация на клиенте
       if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.password.trim()) {
         throw new Error("Все поля обязательны для заполнения");
       }
@@ -49,7 +49,7 @@ export default function Register() {
 
       const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
 
-      // Запрос к серверу
+      // запрос к серверу
       await axios.post('http://localhost:5000/api/auth/register', {
         name: fullName,
         email: formData.email.trim().toLowerCase(),

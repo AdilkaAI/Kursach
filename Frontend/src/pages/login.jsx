@@ -9,7 +9,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Валидация email
+  //  email
   const isValidEmail = (email) => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(email);
@@ -34,19 +34,19 @@ export default function Login() {
         throw new Error("Пароль слишком короткий");
       }
 
-      // Запрос к серверу
+      // запрос к серверу
       const res = await axios.post('http://localhost:5000/api/auth/login', {
         email: email.trim().toLowerCase(),
         password: password
       });
 
-      // Успешный вход
+      // вход
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
 
       alert(`Добро пожаловать, ${res.data.user.name}!`);
 
-      // Редирект в зависимости от роли
+      // редирект 
       if (res.data.user.role === 'Expert') {
         navigate('/expert');
       } else {
@@ -54,7 +54,7 @@ export default function Login() {
       }
 
     } catch (err) {
-      // Обработка всех возможных ошибок
+      // обработка всех возможных ошибок
       let errorMsg = "Произошла ошибка при входе";
 
       if (err.response?.data?.message) {
